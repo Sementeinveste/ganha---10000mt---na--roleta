@@ -19,7 +19,7 @@
   }
   #container {
     position: relative;
-    margin: 0 auto 30px auto;
+    margin: 0 auto 40px auto;
     width: 100%;
     max-width: 320px;
     height: 320px;
@@ -44,6 +44,20 @@
     border-left: 30px solid #ffd700;
     filter: drop-shadow(0 0 5px #ffd700);
   }
+
+  @media (max-width: 400px) {
+    #container {
+      max-width: 280px;
+      height: 280px;
+    }
+    #seta {
+      right: -30px;
+      border-top: 15px solid transparent;
+      border-bottom: 15px solid transparent;
+      border-left: 25px solid #ffd700;
+    }
+  }
+
   #girar, #comecar {
     margin-top: 20px;
     padding: 14px 28px;
@@ -98,7 +112,7 @@
     <div id="seta"></div>
   </div>
 
-  <button id="girar">🎯 Registar-se Agora</button>
+  <button id="girar">Girar</button>
   <div id="resultado"></div>
   <a id="jogar" href="https://bit.ly/43zesVt" target="_blank" style="display:none;">📲 Registar-se Agora</a>
 </div>
@@ -150,7 +164,6 @@
       ctx.fill();
       ctx.closePath();
 
-      // Texto dentro do setor (rotacionado)
       ctx.save();
       ctx.rotate(i * anguloSetor + anguloSetor / 2);
       ctx.translate(raio - 50, 0);
@@ -186,7 +199,6 @@
         : Math.floor(Math.random() * numSetores);
     }
 
-    // Alinhar setor sorteado para ficar no lado direito da roleta, onde está a seta
     const rotacaoSetor = (numSetores - sorteioIndice) * anguloSetor - anguloSetor / 2;
     const voltas = 5;
     const destino = (2 * Math.PI * voltas) + rotacaoSetor;
@@ -233,4 +245,4 @@
 </script>
 
 </body>
-</html>
+  </html>
