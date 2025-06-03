@@ -19,7 +19,7 @@
   }
   #container {
     position: relative;
-    margin: 0 auto;
+    margin: 0 auto 30px auto; /* espaço maior abaixo da roleta */
     width: 100%;
     max-width: 320px;
     height: 320px;
@@ -34,14 +34,14 @@
   }
   #seta {
     position: absolute;
-    top: -30px;
+    top: -25px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) rotate(0deg);
     width: 0; 
     height: 0; 
     border-left: 20px solid transparent;
     border-right: 20px solid transparent;
-    border-bottom: 30px solid #ffd700;
+    border-top: 30px solid #ffd700; /* seta apontando para baixo */
     filter: drop-shadow(0 0 5px #ffd700);
   }
   #girar, #comecar {
@@ -116,6 +116,7 @@
   const somGirando = document.getElementById('som-girando');
   const somVitoria = document.getElementById('som-vitoria');
 
+  // Prêmios com cores e textos
   const premios = [
     { texto: '10 MT', cor: '#ff4444' },
     { texto: '100 MT', cor: '#44cc44' },
@@ -147,10 +148,10 @@
       ctx.fill();
       ctx.closePath();
 
-      // Texto
+      // Texto dentro do setor (rotacionado)
       ctx.save();
       ctx.rotate(i * anguloSetor + anguloSetor / 2);
-      ctx.translate(raio - 40, 0);
+      ctx.translate(raio - 50, 0);
       ctx.rotate(Math.PI / 2);
       ctx.fillStyle = "#000";
       ctx.font = "bold 16px Arial";
@@ -183,7 +184,8 @@
         : Math.floor(Math.random() * numSetores);
     }
 
-    const rotacaoSetor = (numSetores - sorteioIndice) * anguloSetor;
+    // Ajuste para alinhar o centro do setor com a seta
+    const rotacaoSetor = (numSetores - sorteioIndice - 0.5) * anguloSetor;
     const voltas = 5;
     const destino = (2 * Math.PI * voltas) + rotacaoSetor;
 
@@ -222,6 +224,7 @@
 
   girarBtn.addEventListener('click', girarRoleta);
 
+  // Mostrar roleta após clicar em "Começar Jogo"
   document.getElementById('comecar').addEventListener('click', () => {
     document.getElementById('inicio-container').style.display = 'none';
     document.getElementById('jogo').style.display = 'block';
@@ -229,4 +232,4 @@
 </script>
 
 </body>
-</html>
+  </html>
