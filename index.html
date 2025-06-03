@@ -1,48 +1,236 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Ganha até 10.000MT na Roleta!</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Tenta a sorte e ganha até 10.000MT na roleta online!">
-  <style>
-    body {
-      background: linear-gradient(135deg, #111, #222);
-      color: #fff;
-      font-family: 'Arial', sans-serif;
-      text-align: center;
-      padding: 60px 20px;
-    }
-    h1 {
-      color: #ffd700;
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
-    p {
-      font-size: 18px;
-      margin-bottom: 30px;
-    }
-    a.botao {
-      background-color: #ffd700;
-      color: #000;
-      padding: 15px 30px;
-      font-size: 20px;
-      text-decoration: none;
-      border-radius: 8px;
-      transition: background-color 0.3s;
-    }
-    a.botao:hover {
-      background-color: #e6c200;
-    }
-    .emoji {
-      font-size: 40px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Roleta Premiada - Ganha até 10.000MT!</title>
+<style>
+  body {
+    background: #111;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    padding: 40px 10px;
+  }
+  h1 {
+    color: #ffd700;
+    margin-bottom: 20px;
+  }
+  #container {
+    position: relative;
+    margin: 0 auto;
+    width: 320px;
+    height: 320px;
+  }
+  #roleta {
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    border: 12px solid #ffd700;
+    box-shadow: 0 0 15px #ffd700aa;
+    transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  #seta {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; 
+    height: 0; 
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-bottom: 30px solid #ffd700;
+    filter: drop-shadow(0 0 5px #ffd700);
+  }
+  #girar {
+    margin-top: 30px;
+    padding: 15px 30px;
+    font-size: 20px;
+    background: #ffd700;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ffd700;
+    transition: background-color 0.3s ease;
+  }
+  #girar:disabled {
+    background-color: #aaa;
+    cursor: default;
+    box-shadow: none;
+  }
+  #resultado {
+    margin-top: 25px;
+    font-size: 22px;
+    color: #ffd700;
+    min-height: 30px;
+    font-weight: bold;
+  }
+  #jogar {
+    display: none;
+    margin-top: 25px;
+    font-size: 22px;
+    padding: 12px 28px;
+    background: #00cc66;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #00cc66;
+  }
+  #jogar:hover {
+    background: #00b359;
+  }
+</style>
 </head>
 <body>
-  <div class="emoji">🎰💰🎯</div>
-  <h1>Ganha até 10.000MT na Roleta!</h1>
-  <p>Tenta a tua sorte agora mesmo e muda a tua vida!</p>
-  <a class="botao" href="https://bit.ly/43zesVt" target="_blank">🎲 Jogar Agora</a>
+
+<h1>🎰 Gira a Roleta e Ganha até 10.000MT! 🎰</h1>
+
+<div id="container">
+  <div id="seta"></div>
+  <canvas id="roleta" width="320" height="320"></canvas>
+</div>
+
+<button id="girar">🎯 Girar Roleta</button>
+
+<div id="resultado"></div>
+<a id="jogar" href="https://bit.ly/43zesVt" target="_blank">👉 Jogar Agora</a>
+
+<!-- Sons -->
+<audio id="som-girando" src="https://assets.codepen.io/3/roulette-spin.mp3" preload="auto"></audio>
+<audio id="som-vitoria" src="https://assets.codepen.io/3/roulette-win.mp3" preload="auto"></audio>
+
+<script>
+  const canvas = document.getElementById('roleta');
+  const ctx = canvas.getContext('2d');
+  const girarBtn = document.getElementById('girar');
+  const resultadoEl = document.getElementById('resultado');
+  const jogarBtn = document.getElementById('jogar');
+  const somGirando = document.getElementById('som-girando');
+  const somVitoria = document.getElementById('som-vitoria');
+
+  // Prêmios e cores (em ordem)
+  const premios = [
+    { texto: '10 meticais', cor: '#ff4444' },       // vermelho
+    { texto: '100 meticais', cor: '#44cc44' },      // verde
+    { texto: '500 meticais', cor: '#4466ff' },      // azul
+    { texto: 'Boa sorte', cor: '#ffff66' },         // amarelo
+    { texto: '500 meticais', cor: '#44cc44' },      // verde
+    { texto: '10.000 meticais', cor: '#4466ff' },   // azul
+    { texto: '5.000 meticais', cor: '#ff4444' },    // vermelho
+    { texto: '1.000 meticais', cor: '#ffff66' }     // amarelo
+  ];
+
+  const numSetores = premios.length;
+  const anguloSetor = (2 * Math.PI) / numSetores;
+  let rotacaoAtual = 0;
+  let jogadas = 0;
+
+  // Desenhar roleta no canvas
+  function desenharRoleta() {
+    const raio = canvas.width / 2;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(raio, raio);
+    
+    for(let i = 0; i < numSetores; i++) {
+      // Setor
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.fillStyle = premios[i].cor;
+      ctx.arc(0,0, raio, i * anguloSetor, (i+1) * anguloSetor);
+      ctx.lineTo(0,0);
+      ctx.fill();
+      ctx.closePath();
+
+      // Texto
+      ctx.fillStyle = '#111';
+      ctx.font = 'bold 16px Arial';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      
+      const meioAngulo = i * anguloSetor + anguloSetor / 2;
+      ctx.save();
+      ctx.rotate(meioAngulo);
+      ctx.translate(raio - 15, 0);
+      ctx.rotate(Math.PI / 2);
+      ctx.fillText(premios[i].texto, 0, 0);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  desenharRoleta();
+
+  // Função para girar roleta
+  function girarRoleta() {
+    jogadas++;
+    girarBtn.disabled = true;
+    resultadoEl.textContent = '';
+    jogarBtn.style.display = 'none';
+
+    somGirando.currentTime = 0;
+    somGirando.play();
+
+    let sorteioIndice;
+    if (jogadas === 1) {
+      // Primeira vez: parar no "Boa sorte" (índice 3)
+      sorteioIndice = 3;
+    } else {
+      // Depois sorteio aleatório, preferindo 5000 (índice 6) ou 10000 (índice 5)
+      const opcoesPrioritarias = [5, 6];
+      if (Math.random() < 0.6) {
+        sorteioIndice = opcoesPrioritarias[Math.floor(Math.random() * opcoesPrioritarias.length)];
+      } else {
+        sorteioIndice = Math.floor(Math.random() * numSetores);
+      }
+    }
+
+    // Calcula rotação para parar no setor sorteado
+    // Cada setor começa em i * anguloSetor, vamos alinhar setor com seta que está em 0°
+    // Ajuste para a rotação atual para não parecer salto
+    const rotacaoSetor = (numSetores - sorteioIndice) * anguloSetor; // sentido anti-horário
+    const voltas = 5; // número de voltas completas antes de parar
+    const destino = (2 * Math.PI * voltas) + rotacaoSetor;
+
+    // Anima a rotação
+    const duracao = 4000;
+    const inicioRotacao = rotacaoAtual;
+    const inicioTempo = performance.now();
+
+    function animar(time) {
+      const tempoDecorrido = time - inicioTempo;
+      if (tempoDecorrido < duracao) {
+        const progresso = tempoDecorrido / duracao;
+        // ease out cubic
+        const ease = 1 - Math.pow(1 - progresso, 3);
+        rotacaoAtual = inicioRotacao + (destino - inicioRotacao) * ease;
+        canvas.style.transform = `rotate(${rotacaoAtual}rad)`;
+        requestAnimationFrame(animar);
+      } else {
+        rotacaoAtual = destino;
+        canvas.style.transform = `rotate(${rotacaoAtual}rad)`;
+        finalizar(sorteioIndice);
+      }
+    }
+
+    requestAnimationFrame(animar);
+  }
+
+  // Finaliza e mostra resultado
+  function finalizar(indice) {
+    somGirando.pause();
+    somVitoria.currentTime = 0;
+    somVitoria.play();
+
+    const premio = premios[indice].texto;
+    resultadoEl.textContent = `🎉 Parabéns! Você ganhou: ${premio}`;
+    jogarBtn.style.display = 'inline-block';
+    girarBtn.disabled = false;
+  }
+
+  girarBtn.addEventListener('click', girarRoleta);
+</script>
+
 </body>
-</html>
+  </html>
