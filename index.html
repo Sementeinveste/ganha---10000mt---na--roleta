@@ -19,7 +19,7 @@
   }
   #container {
     position: relative;
-    margin: 0 auto 30px auto; /* espaço maior abaixo da roleta */
+    margin: 0 auto 30px auto;
     width: 100%;
     max-width: 320px;
     height: 320px;
@@ -34,14 +34,14 @@
   }
   #seta {
     position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%) rotate(0deg);
+    top: 50%;
+    right: -40px;
+    transform: translateY(-50%) rotate(180deg);
     width: 0; 
     height: 0; 
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-top: 30px solid #ffd700; /* seta apontando para baixo */
+    border-top: 20px solid transparent;
+    border-bottom: 20px solid transparent;
+    border-left: 30px solid #ffd700;
     filter: drop-shadow(0 0 5px #ffd700);
   }
   #girar, #comecar {
@@ -94,13 +94,13 @@
 
 <div id="jogo" style="display: none;">
   <div id="container">
-    <div id="seta"></div>
     <canvas id="roleta" width="320" height="320"></canvas>
+    <div id="seta"></div>
   </div>
 
-  <button id="girar">🎯 Girar Roleta</button>
+  <button id="girar">🎯 Registar-se Agora</button>
   <div id="resultado"></div>
-  <a id="jogar" href="https://bit.ly/43zesVt" target="_blank">📲 Registar-se Agora</a>
+  <a id="jogar" href="https://bit.ly/43zesVt" target="_blank" style="display:none;">📲 Registar-se Agora</a>
 </div>
 
 <!-- Sons -->
@@ -115,8 +115,10 @@
   const jogarBtn = document.getElementById('jogar');
   const somGirando = document.getElementById('som-girando');
   const somVitoria = document.getElementById('som-vitoria');
+  const comecarBtn = document.getElementById('comecar');
+  const inicioContainer = document.getElementById('inicio-container');
+  const jogoContainer = document.getElementById('jogo');
 
-  // Prêmios com cores e textos
   const premios = [
     { texto: '10 MT', cor: '#ff4444' },
     { texto: '100 MT', cor: '#44cc44' },
@@ -184,8 +186,8 @@
         : Math.floor(Math.random() * numSetores);
     }
 
-    // Ajuste para alinhar o centro do setor com a seta
-    const rotacaoSetor = (numSetores - sorteioIndice - 0.5) * anguloSetor;
+    // Alinhar setor sorteado para ficar no lado direito da roleta, onde está a seta
+    const rotacaoSetor = (numSetores - sorteioIndice) * anguloSetor - anguloSetor / 2;
     const voltas = 5;
     const destino = (2 * Math.PI * voltas) + rotacaoSetor;
 
@@ -224,12 +226,11 @@
 
   girarBtn.addEventListener('click', girarRoleta);
 
-  // Mostrar roleta após clicar em "Começar Jogo"
-  document.getElementById('comecar').addEventListener('click', () => {
-    document.getElementById('inicio-container').style.display = 'none';
-    document.getElementById('jogo').style.display = 'block';
+  comecarBtn.addEventListener('click', () => {
+    inicioContainer.style.display = 'none';
+    jogoContainer.style.display = 'block';
   });
 </script>
 
 </body>
-  </html>
+</html>
